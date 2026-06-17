@@ -3,7 +3,7 @@
  * Plugin Name: Loco AI Translator
  * Plugin URI:  https://github.com/error-agency/loco-ai-translator
  * Description: AI-powered translation for Loco Translate using OpenRouter, Ollama and any OpenAI-compatible provider.
- * Version:     1.5.2
+ * Version:     1.5.3
  * Author:      Err.or
  * Author URI:  https://error.bg
  * Text Domain: loco-ai-translator
@@ -16,7 +16,7 @@
 if (!defined('ABSPATH'))
     exit;
 
-define('LAT_VERSION', '1.5.2');
+define('LAT_VERSION', '1.5.3');
 define('LAT_PATH', plugin_dir_path(__FILE__));
 define('LAT_URL', plugin_dir_url(__FILE__));
 define('LAT_BASENAME', plugin_basename(__FILE__));

@@ -6,6 +6,13 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.5.3] — 2026-06-18
+
+### Changed
+- **WPCS & Code Quality Alignment** — Verified compliance of all newly added methods and variables with WordPress Coding Standards (using proper snake_case conventions, strict identity checks, sanitization, and array structures).
+
+---
+
 ## [1.5.2] — 2026-06-18
 
 ### Fixed
