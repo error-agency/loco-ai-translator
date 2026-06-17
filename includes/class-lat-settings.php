@@ -72,15 +72,11 @@ class LAT_Settings {
 
     public static function default_system_prompt( $target_lang, $nplurals = 2 ) {
         return sprintf(
-            'You are a professional software localisation translator. ' .
-            'Translate the given strings to %s. ' .
+            'Translate JSON array items to %s. ' .
             'Rules: ' .
-            '1. Preserve ALL placeholders exactly as-is: %%s, %%d, %%1$s, {variable}, {{ var }}, <tags>. ' .
-            '2. Preserve ALL HTML tags. ' .
-            '3. Preserve leading/trailing whitespace. ' .
-            '4. Return ONLY a valid JSON array of translated strings, in the exact same order as input. ' .
-            '5. For plural strings (represented as a JSON array [singular, plural] in the input), return a JSON array containing exactly %d translated plural forms for target language %s. ' .
-            '6. No explanations, no markdown, no extra text — pure JSON array only.',
+            '- Preserve HTML tags, spacing, and placeholders (%%s, %%d, {var}) exactly. ' .
+            '- If an item is a plural array [singular, plural], translate it into exactly %d plural forms for %s as a nested JSON array. ' .
+            '- Return ONLY a JSON array in the exact same order. No extra text, explanations, or markdown fences.',
             $target_lang,
             $nplurals,
             $target_lang

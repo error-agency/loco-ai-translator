@@ -6,6 +6,18 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.5.2] — 2026-06-18
+
+### Fixed
+- **Deduplication of duplicate strings** — Identical untranslated strings are now grouped and sent to the AI only once per batch, then propagated to all duplicates in memory, reducing API token costs.
+- **Bypass of non-translatable strings** — Strings that are purely numeric, URLs, special HTML characters, or pure placeholders are auto-translated in memory without making any AI API requests.
+
+### Added
+- **Dynamic Character-Based Batching** — Batches are dynamically limited by character count (up to 3,000 characters of source text) to balance payload size, preventing timeouts on long strings and optimizing request size for short ones.
+- **Cache-Friendly Prompt** — Shortened and refactored the default system prompt to reduce prompt tokens and make it compatible with provider-level prompt caching (e.g. Anthropic, OpenRouter).
+
+---
+
 ## [1.5.1] — 2026-06-18
 
 ### Fixed

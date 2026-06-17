@@ -128,6 +128,55 @@ class LAT_Ajax
         $max_retries = max(0, (int)$settings->get('max_retries', 3));
 
         $untranslated = LAT_Po_Handler::get_untranslated($entries, $skip_translated);
+
+        // ── Auto-translate non-translatable strings directly ──────────────────
+        $auto_translate_map = [];
+        foreach ($untranslated as $item) {
+            $is_non_trans = false;
+            if ($item['plural'] !== null) {
+                if (LAT_Po_Handler::is_non_translatable($item['msgid']) || LAT_Po_Handler::is_non_translatable($item['plural'])) {
+                    $is_non_trans = true;
+                }
+            } else {
+                if (LAT_Po_Handler::is_non_translatable($item['msgid'])) {
+                    $is_non_trans = true;
+                }
+            }
+
+            if ($is_non_trans) {
+                if ($item['plural'] !== null) {
+                    $nplurals = LAT_Po_Handler::get_nplurals($entries);
+                    $plural_vals = [];
+                    $plural_vals[0] = $item['msgid'];
+                    for ($k = 1; $k < $nplurals; $k++) {
+                        $plural_vals[$k] = $item['plural'];
+                    }
+                    $auto_translate_map[$item['index']] = $plural_vals;
+                } else {
+                    $auto_translate_map[$item['index']] = $item['msgid'];
+                }
+
+                if (!empty($item['duplicates'])) {
+                    foreach ($item['duplicates'] as $dup_idx) {
+                        if ($item['plural'] !== null) {
+                            $auto_translate_map[$dup_idx] = $plural_vals;
+                        } else {
+                            $auto_translate_map[$dup_idx] = $item['msgid'];
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!empty($auto_translate_map)) {
+            $entries = LAT_Po_Handler::apply_translations($entries, $auto_translate_map);
+            LAT_Po_Handler::save($po_path, $entries);
+            if ($job_id) {
+                set_transient('lat_entries_' . $job_id, $entries, 2 * HOUR_IN_SECONDS);
+            }
+            $untranslated = LAT_Po_Handler::get_untranslated($entries, $skip_translated);
+        }
+
         $remaining_now = count($untranslated);
         $total_original = max(1, absint($_POST['total_original'] ?? $remaining_now));
 
@@ -143,13 +192,25 @@ class LAT_Ajax
             ]);
         }
 
-        // ── THE FIX ──────────────────────────────────────────────────────────
-        // We re-parse the file on every request and filter already-translated
-        // strings. This means $untranslated always starts from the first
-        // NOT-YET-translated entry. We ALWAYS slice from index 0 — never use
-        // batch_index as an offset, because that causes every other batch to be
-        // skipped (the array shrinks between requests).
-        $batch = array_slice($untranslated, 0, $batch_sz, true);
+        // ── Dynamic Character-Based Batching ──────────────────────────────────
+        $batch = [];
+        $current_char_count = 0;
+        $max_chars = 3000;
+
+        foreach ($untranslated as $item) {
+            if (count($batch) >= $batch_sz) {
+                break;
+            }
+
+            $item_len = strlen($item['msgid']) + ($item['plural'] !== null ? strlen($item['plural']) : 0);
+
+            if (!empty($batch) && ($current_char_count + $item_len > $max_chars)) {
+                break;
+            }
+
+            $batch[] = $item;
+            $current_char_count += $item_len;
+        }
 
         $source_strings = [];
         foreach ($batch as $item) {
@@ -200,15 +261,18 @@ class LAT_Ajax
                 '[LAT] Batch failed after %d retries. Error: %s. Skipping %d strings.',
                 $max_retries, $last_error, count($batch)
             ));
-            $skipped_count = count($batch);
-            // Mark these strings with a placeholder so they don't block the loop
+            
             $skip_map = [];
-            foreach (array_values($batch) as $item) {
-                $skip_map[$item['index']] = ''; // empty = still untranslated, but flagged
+            foreach ($batch as $item) {
+                $skip_map[$item['index']] = '';
+                if (!empty($item['duplicates'])) {
+                    foreach ($item['duplicates'] as $dup_idx) {
+                        $skip_map[$dup_idx] = '';
+                    }
+                }
             }
-            // We do NOT save anything — they remain untranslated and will be
-            // picked up again on the next run. Just advance past them by marking
-            // them with a fuzzy flag so they are no longer "untranslated".
+            
+            $skipped_count = count($skip_map);
             $entries = LAT_Po_Handler::flag_as_skipped($entries, array_keys($skip_map));
             LAT_Po_Handler::save($po_path, $entries);
             if ($job_id) {
@@ -221,9 +285,16 @@ class LAT_Ajax
                 $translated = $result[$i] ?? '';
                 if ($translated !== '' && $translated !== null) {
                     $translation_map[$item['index']] = $translated;
+                    
+                    // Distribute translation to duplicate indices
+                    if (!empty($item['duplicates'])) {
+                        foreach ($item['duplicates'] as $dup_idx) {
+                            $translation_map[$dup_idx] = $translated;
+                        }
+                    }
                 }
                 else {
-                    $skipped_count++;
+                    $skipped_count += 1 + count($item['duplicates'] ?? []);
                 }
             }
 

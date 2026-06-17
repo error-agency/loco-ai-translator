@@ -162,6 +162,7 @@ class LAT_Po_Handler {
      */
     public static function get_untranslated( array $entries, bool $skip_translated = true ) {
         $result = [];
+        $seen = [];
 
         foreach ( $entries as $i => $entry ) {
             if ( $entry['is_header'] ) continue;
@@ -177,11 +178,20 @@ class LAT_Po_Handler {
                 continue;
             }
 
-            $result[] = [
-                'index'  => $i,
-                'msgid'  => $entry['msgid'],
-                'plural' => $entry['msgid_plural'],
-            ];
+            $key = $entry['msgid'] . '|||' . ( $entry['msgid_plural'] ?? '' );
+
+            if ( isset( $seen[$key] ) ) {
+                $idx = $seen[$key];
+                $result[$idx]['duplicates'][] = $i;
+            } else {
+                $seen[$key] = count( $result );
+                $result[] = [
+                    'index'      => $i,
+                    'msgid'      => $entry['msgid'],
+                    'plural'     => $entry['msgid_plural'],
+                    'duplicates' => [],
+                ];
+            }
         }
 
         return $result;
@@ -357,6 +367,45 @@ class LAT_Po_Handler {
             $mo->set_headers( $po->headers );
             $mo->export_to_file( $mo_path );
         }
+    }
+
+    /**
+     * Check if a string is non-translatable (e.g. pure placeholder, number, URL, etc.)
+     *
+     * @param  string $str The string to check.
+     * @return bool
+     */
+    public static function is_non_translatable( string $str ) {
+        $str = trim( $str );
+        if ( $str === '' ) {
+            return true;
+        }
+
+        // 1. Purely numeric (e.g., "123", "99.9")
+        if ( is_numeric( $str ) ) {
+            return true;
+        }
+
+        // 2. Purely placeholders (e.g., "%s", "%d", "%1$s", "%2$d", "{{var}}", "{var}")
+        $placeholder_pattern = '/^(?:%[0-9]*\$?[sd]|{{?[a-zA-Z0-9_\-\s]+}?})+$/';
+        if ( preg_match( $placeholder_pattern, $str ) ) {
+            return true;
+        }
+
+        // 3. Purely URLs (e.g., "http://...", "https://...")
+        if ( preg_match( '/^https?:\/\/[^\s]+$/i', $str ) ) {
+            return true;
+        }
+
+        // 4. Purely HTML tags or special entities/punctuation without letters/words (e.g. "<br />", "&rarr;", "---", ":")
+        $stripped = strip_tags( $str );
+        $stripped = html_entity_decode( $stripped );
+        $stripped = preg_replace( '/&[a-zA-Z0-9#]+;/', '', $stripped ); // remove unresolved entities
+        if ( ! preg_match( '/[a-zA-Z\p{L}0-9]/u', $stripped ) ) {
+            return true;
+        }
+
+        return false;
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
