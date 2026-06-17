@@ -6,6 +6,17 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.5.1] — 2026-06-18
+
+### Fixed
+- **Plural strings skipped** — Plural entries (with `msgid_plural`) were previously skipped or only partially translated because empty placeholder arrays `[0 => "", 1 => ""]` were incorrectly treated as already translated. Now they are correctly detected and translated.
+- **Support for translating plural forms** — AI prompt and API client now request exactly the number of plural forms (`nplurals`) required by the target language. Applied translations are properly merged into `msgstr_plural`.
+
+### Added
+- **Performance Caching (Transient Cache)** — Added transient-based caching of the parsed PO entries array during the translation job. This avoids reading and parsing the entire PO file on every single batch request, reducing disk reads and CPU overhead to zero during the loop. Remaining counts are calculated in memory.
+
+---
+
 ## [1.5.0] — 2026-03-19
 
 ### Fixed — Critical

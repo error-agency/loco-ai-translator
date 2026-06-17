@@ -110,9 +110,16 @@ class LAT_Ajax
             ]);
         }
 
-        $entries = LAT_Po_Handler::parse($po_path);
-        if (is_wp_error($entries)) {
-            wp_send_json_error(['message' => $entries->get_error_message()]);
+        $entries = null;
+        if ($job_id) {
+            $entries = get_transient('lat_entries_' . $job_id);
+        }
+
+        if (empty($entries) || !is_array($entries)) {
+            $entries = LAT_Po_Handler::parse($po_path);
+            if (is_wp_error($entries)) {
+                wp_send_json_error(['message' => $entries->get_error_message()]);
+            }
         }
 
         $settings = LAT_Settings::instance();
@@ -144,7 +151,14 @@ class LAT_Ajax
         // skipped (the array shrinks between requests).
         $batch = array_slice($untranslated, 0, $batch_sz, true);
 
-        $source_strings = array_column($batch, 'msgid');
+        $source_strings = [];
+        foreach ($batch as $item) {
+            if ($item['plural'] !== null) {
+                $source_strings[] = [$item['msgid'], $item['plural']];
+            } else {
+                $source_strings[] = $item['msgid'];
+            }
+        }
         $client = new LAT_Api_Client();
         $batch_start_ts = microtime(true);
 
@@ -159,7 +173,8 @@ class LAT_Ajax
                 sleep(min((int)pow(2, $attempt - 1), 8));
             }
 
-            $try = $client->translate_batch($source_strings, $target_lang);
+            $nplurals = LAT_Po_Handler::get_nplurals($entries);
+            $try = $client->translate_batch($source_strings, $target_lang, $nplurals);
 
             if (!is_wp_error($try)) {
                 $result = $try;
@@ -196,12 +211,15 @@ class LAT_Ajax
             // them with a fuzzy flag so they are no longer "untranslated".
             $entries = LAT_Po_Handler::flag_as_skipped($entries, array_keys($skip_map));
             LAT_Po_Handler::save($po_path, $entries);
+            if ($job_id) {
+                set_transient('lat_entries_' . $job_id, $entries, 2 * HOUR_IN_SECONDS);
+            }
         }
         else {
             $translation_map = [];
             foreach (array_values($batch) as $i => $item) {
-                $translated = isset($result[$i]) ? (string)$result[$i] : '';
-                if ($translated !== '') {
+                $translated = $result[$i] ?? '';
+                if ($translated !== '' && $translated !== null) {
                     $translation_map[$item['index']] = $translated;
                 }
                 else {
@@ -215,17 +233,22 @@ class LAT_Ajax
             if (is_wp_error($saved)) {
                 wp_send_json_error(['message' => $saved->get_error_message()]);
             }
+
+            if ($job_id) {
+                set_transient('lat_entries_' . $job_id, $entries, 2 * HOUR_IN_SECONDS);
+            }
         }
 
-        // Re-count remaining after save for accurate progress
-        $entries_after = LAT_Po_Handler::parse($po_path);
-        $remaining_after = is_wp_error($entries_after)
-            ? max(0, $remaining_now - count($batch))
-            : count(LAT_Po_Handler::get_untranslated($entries_after, $skip_translated));
+        // Re-count remaining after save for accurate progress (using in-memory entries instead of re-parsing file)
+        $remaining_after = count(LAT_Po_Handler::get_untranslated($entries, $skip_translated));
 
         $translated_so_far = $total_original - $remaining_after;
         $percent = min(100, (int)round(($translated_so_far / $total_original) * 100));
         $is_done = ($remaining_after === 0);
+
+        if ($is_done && $job_id) {
+            delete_transient('lat_entries_' . $job_id);
+        }
 
         $response = [
             'done' => $is_done,
@@ -270,6 +293,7 @@ class LAT_Ajax
 
         // Flag expires in 10 minutes — more than enough for the next batch to pick it up
         set_transient('lat_cancel_' . $job_id, 1, 10 * MINUTE_IN_SECONDS);
+        delete_transient('lat_entries_' . $job_id);
 
         wp_send_json_success(['message' => 'Cancel signal sent.']);
     }

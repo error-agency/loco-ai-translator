@@ -166,7 +166,11 @@ class LAT_Po_Handler {
         foreach ( $entries as $i => $entry ) {
             if ( $entry['is_header'] ) continue;
 
-            $has_translation = ! empty( $entry['msgstr'] ) || ! empty( $entry['msgstr_plural'] );
+            $has_plural_translation = false;
+            if ( ! empty( $entry['msgstr_plural'] ) ) {
+                $has_plural_translation = ! empty( array_filter( $entry['msgstr_plural'] ) );
+            }
+            $has_translation = ! empty( $entry['msgstr'] ) || $has_plural_translation;
             $is_fuzzy        = $entry['is_fuzzy'];
 
             if ( $skip_translated && $has_translation && ! $is_fuzzy ) {
@@ -184,17 +188,43 @@ class LAT_Po_Handler {
     }
 
     /**
+     * Get the number of plural forms from the PO file headers.
+     *
+     * @param  array $entries Parsed entries.
+     * @return int
+     */
+    public static function get_nplurals( array $entries ) {
+        foreach ( $entries as $entry ) {
+            if ( $entry['is_header'] ) {
+                if ( preg_match( '/Plural-Forms:\s*nplurals=(\d+)/i', $entry['msgstr'], $matches ) ) {
+                    return (int) $matches[1];
+                }
+            }
+        }
+        return 2; // Default fallback
+    }
+
+    /**
      * Write translations back into entries array.
      *
      * @param  array $entries      Parsed entries.
-     * @param  array $translations [ index => translated_string ]
+     * @param  array $translations [ index => translated_string|array ]
      * @return array Updated entries.
      */
     public static function apply_translations( array $entries, array $translations ) {
         foreach ( $translations as $idx => $translated ) {
             if ( ! isset( $entries[ $idx ] ) ) continue;
 
-            $entries[ $idx ]['msgstr']  = (string) $translated;
+            if ( is_array( $translated ) ) {
+                $existing = $entries[ $idx ]['msgstr_plural'] ?: [];
+                foreach ( $translated as $k => $v ) {
+                    $existing[$k] = (string) $v;
+                }
+                $entries[ $idx ]['msgstr_plural'] = $existing;
+                $entries[ $idx ]['msgstr'] = ''; // Plural entries should have empty msgstr
+            } else {
+                $entries[ $idx ]['msgstr']  = (string) $translated;
+            }
             $entries[ $idx ]['is_fuzzy'] = false;
 
             // Remove fuzzy flag

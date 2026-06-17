@@ -9,14 +9,7 @@ class LAT_Api_Client {
         $this->settings = LAT_Settings::instance();
     }
 
-    /**
-     * Translate a batch of strings.
-     *
-     * @param  array  $strings     Array of source strings to translate.
-     * @param  string $target_lang Target language name, e.g. "Bulgarian".
-     * @return array|WP_Error      Translated strings array or WP_Error.
-     */
-    public function translate_batch( array $strings, string $target_lang ) {
+    public function translate_batch( array $strings, string $target_lang, int $nplurals = 2 ) {
         if ( empty( $strings ) ) {
             return [];
         }
@@ -25,17 +18,17 @@ class LAT_Api_Client {
 
         switch ( $provider ) {
             case 'ollama':
-                return $this->call_ollama( $strings, $target_lang );
+                return $this->call_ollama( $strings, $target_lang, $nplurals );
             case 'openrouter':
             default:
-                return $this->call_openai_compatible( $strings, $target_lang );
+                return $this->call_openai_compatible( $strings, $target_lang, $nplurals );
         }
     }
 
     /**
      * OpenRouter / any OpenAI-compatible endpoint.
      */
-    private function call_openai_compatible( array $strings, string $target_lang ) {
+    private function call_openai_compatible( array $strings, string $target_lang, int $nplurals ) {
         $endpoint   = rtrim( $this->settings->get( 'api_endpoint' ), '/' ) . '/chat/completions';
         $api_key    = $this->settings->get( 'api_key' );
         $model      = $this->settings->get( 'model' );
@@ -43,7 +36,7 @@ class LAT_Api_Client {
         $sys_prompt = $this->settings->get( 'system_prompt' );
 
         if ( empty( $sys_prompt ) ) {
-            $sys_prompt = LAT_Settings::default_system_prompt( $target_lang );
+            $sys_prompt = LAT_Settings::default_system_prompt( $target_lang, $nplurals );
         }
 
         $user_content = 'Translate these strings to ' . $target_lang . ":\n" .
@@ -81,14 +74,14 @@ class LAT_Api_Client {
     /**
      * Ollama (local) — uses /api/chat endpoint.
      */
-    private function call_ollama( array $strings, string $target_lang ) {
+    private function call_ollama( array $strings, string $target_lang, int $nplurals ) {
         $endpoint   = rtrim( $this->settings->get( 'api_endpoint' ), '/' ) . '/api/chat';
         $model      = $this->settings->get( 'model' );
         $temp       = $this->settings->get( 'temperature' );
         $sys_prompt = $this->settings->get( 'system_prompt' );
 
         if ( empty( $sys_prompt ) ) {
-            $sys_prompt = LAT_Settings::default_system_prompt( $target_lang );
+            $sys_prompt = LAT_Settings::default_system_prompt( $target_lang, $nplurals );
         }
 
         $user_content = 'Translate these strings to ' . $target_lang . ":\n" .
