@@ -1,0 +1,582 @@
+/* ══════════════════════════════════════════════════════════════════
+   Loco AI Translator — Admin Styles
+   ══════════════════════════════════════════════════════════════════ */
+
+:root {
+    --lat-blue:       #2271b1;
+    --lat-blue-hover: #135e96;
+    --lat-green:      #00a32a;
+    --lat-red:        #d63638;
+    --lat-yellow:     #dba617;
+    --lat-bg:         #f6f7f7;
+    --lat-border:     #dcdcde;
+    --lat-radius:     8px;
+}
+
+/* ── Page Header ─────────────────────────────────────────────────── */
+.lat-settings-wrap {
+    max-width: 1100px;
+}
+
+.lat-page-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px !important;
+}
+
+.lat-logo {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.lat-version {
+    font-size: 13px;
+    font-weight: normal;
+    color: #787878;
+    background: #e5e5e5;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────── */
+.lat-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 960px) {
+    .lat-layout { grid-template-columns: 1fr; }
+}
+
+/* ── Cards ───────────────────────────────────────────────────────── */
+.lat-card {
+    background: #fff;
+    border: 1px solid var(--lat-border);
+    border-radius: var(--lat-radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+
+.lat-sidebar-card {
+    margin-bottom: 16px;
+}
+
+.lat-card-info {
+    background: #f0f6fc;
+    border-color: #bdd7f0;
+}
+
+.lat-card-title {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    margin: 0 0 18px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid var(--lat-border) !important;
+    color: #1d2327 !important;
+}
+
+/* ── Provider Tabs ───────────────────────────────────────────────── */
+.lat-provider-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.lat-provider-tab {
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 12px;
+    border: 2px solid var(--lat-border);
+    border-radius: var(--lat-radius);
+    cursor: pointer;
+    transition: all .15s ease;
+    text-align: center;
+    background: var(--lat-bg);
+}
+
+.lat-provider-tab input[type=radio] { display: none; }
+
+.lat-provider-tab:hover {
+    border-color: var(--lat-blue);
+    background: #f0f6fc;
+}
+
+.lat-provider-tab.active {
+    border-color: var(--lat-blue);
+    background: #f0f6fc;
+    box-shadow: 0 0 0 1px var(--lat-blue);
+}
+
+.lat-provider-icon { font-size: 24px; }
+
+.lat-provider-tab strong {
+    font-size: 14px;
+    color: #1d2327;
+}
+
+.lat-provider-tab small {
+    font-size: 11px;
+    color: #787878;
+}
+
+/* ── Form Table ──────────────────────────────────────────────────── */
+.lat-form-table th {
+    padding: 12px 10px 12px 0;
+    width: 200px;
+    font-weight: 500;
+}
+
+.lat-form-table td {
+    padding: 8px 0;
+}
+
+/* ── Presets ─────────────────────────────────────────────────────── */
+.lat-presets {
+    margin-top: 8px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.lat-preset {
+    font-size: 11px !important;
+}
+
+/* ── Model Row ───────────────────────────────────────────────────── */
+.lat-model-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* ── Actions ─────────────────────────────────────────────────────── */
+.lat-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 20px 0 0;
+}
+
+.lat-test-result {
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+.lat-test-ok {
+    background: #edfaef;
+    color: var(--lat-green);
+    border: 1px solid #b8e6bc;
+}
+
+.lat-test-err {
+    background: #fce8e8;
+    color: var(--lat-red);
+    border: 1px solid #f5c2c2;
+}
+
+/* ── File Translate ──────────────────────────────────────────────── */
+.lat-file-translate label {
+    display: block;
+    font-weight: 500;
+    margin: 12px 0 4px;
+    font-size: 13px;
+}
+
+.lat-file-translate label:first-child { margin-top: 0; }
+
+.lat-file-translate .regular-text { width: 100%; }
+
+/* ── Progress Bar ────────────────────────────────────────────────── */
+.lat-progress-bar-track {
+    background: var(--lat-border);
+    border-radius: 20px;
+    height: 10px;
+    overflow: hidden;
+}
+
+.lat-progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--lat-blue), #00b4d8);
+    border-radius: 20px;
+    width: 0%;
+    transition: width .3s ease;
+}
+
+.lat-progress-text {
+    margin: 6px 0 0 !important;
+    font-size: 12px;
+    color: #787878;
+}
+
+/* ── Notices ─────────────────────────────────────────────────────── */
+.lat-notice {
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.lat-notice-success {
+    background: #edfaef;
+    color: var(--lat-green);
+    border: 1px solid #b8e6bc;
+}
+
+.lat-notice-error {
+    background: #fce8e8;
+    color: var(--lat-red);
+    border: 1px solid #f5c2c2;
+}
+
+.lat-notice-info {
+    background: #f0f6fc;
+    color: var(--lat-blue);
+    border: 1px solid #bdd7f0;
+}
+
+.lat-notice-warning {
+    background: #fef8ee;
+    color: #996800;
+    border: 1px solid #f5d98b;
+}
+
+/* ── Path row (manual fallback) ──────────────────────────────────── */
+.lat-path-row {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #fef8ee;
+    border: 1px solid #f5d98b;
+    border-radius: 5px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.lat-manual-path {
+    flex: 1;
+    min-width: 280px;
+    max-width: 500px;
+}
+
+/* ── Path info badge ─────────────────────────────────────────────── */
+.lat-path-info {
+    font-size: 11px;
+    color: #787878;
+    font-family: monospace;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 1px 7px;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    cursor: help;
+}
+
+/* ── How To List ─────────────────────────────────────────────────── */
+.lat-how-to {
+    margin: 0 0 0 18px;
+    padding: 0;
+}
+
+.lat-how-to li {
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #3c434a;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Loco Editor — AI Translate Panel
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Panel container ─────────────────────────────────────────────── */
+#lat-panel {
+    background: #fff;
+    border: 1px solid var(--lat-border);
+    border-top: 3px solid var(--lat-blue);
+    border-radius: 0 0 var(--lat-radius) var(--lat-radius);
+    padding: 14px 16px 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.06);
+}
+
+/* ── Controls row ────────────────────────────────────────────────── */
+.lat-panel-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.lat-panel-label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #3c434a;
+    white-space: nowrap;
+}
+
+/* ── Language dropdown ───────────────────────────────────────────── */
+.lat-lang-select {
+    min-width: 220px;
+    max-width: 300px;
+    height: 30px !important;
+    font-size: 13px !important;
+    border-color: var(--lat-border) !important;
+    border-radius: 4px !important;
+}
+
+.lat-lang-select:focus {
+    border-color: var(--lat-blue) !important;
+    box-shadow: 0 0 0 1px var(--lat-blue) !important;
+    outline: none;
+}
+
+/* ── Stop button ─────────────────────────────────────────────────── */
+.lat-stop-btn {
+    background: #fff !important;
+    color: var(--lat-red) !important;
+    border-color: var(--lat-red) !important;
+    font-weight: 600 !important;
+    height: 30px !important;
+    line-height: 28px !important;
+    padding: 0 12px !important;
+    transition: background .15s, color .15s !important;
+}
+
+.lat-stop-btn:hover:not(:disabled) {
+    background: var(--lat-red) !important;
+    color: #fff !important;
+}
+
+.lat-stop-btn:disabled {
+    opacity: .6 !important;
+    cursor: wait !important;
+}
+
+/* ── Reload button (inside notice) ──────────────────────────────── */
+.lat-reload-btn {
+    vertical-align: middle;
+    margin-left: 8px !important;
+}
+
+/* ── Progress pct + count ────────────────────────────────────────── */
+.lat-progress-pct {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--lat-blue);
+    margin-left: 10px;
+    min-width: 38px;
+    display: inline-block;
+}
+
+.lat-progress-cnt {
+    font-size: 12px;
+    color: #787878;
+}
+
+/* ── Ticker ───────────────────────────────────────────────────────── */
+.lat-ticker {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #787878;
+    padding: 6px 10px;
+    background: #f6f7f7;
+    border-left: 3px solid var(--lat-blue);
+    border-radius: 0 4px 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.lat-ticker-label {
+    font-weight: 600;
+    color: #3c434a;
+    margin-right: 6px;
+}
+.lat-ticker-sep { color: #c3c4c7; margin: 0 4px; }
+
+/* ── Live summary strip ──────────────────────────────────────────── */
+#lat-summary {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: 12px;
+    color: #3c434a;
+    background: #f0f6fc;
+    border: 1px solid #bdd7f0;
+    border-radius: 5px;
+    padding: 7px 12px;
+    margin-top: 10px;
+}
+#lat-summary strong { font-size: 13px; }
+#lat-summary span   { white-space: nowrap; }
+
+/* ── Batch log table ─────────────────────────────────────────────── */
+#lat-batch-log {
+    margin-top: 10px;
+    border: 1px solid var(--lat-border);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 12px;
+    max-height: 240px;
+    display: flex;
+    flex-direction: column;
+}
+
+.lat-log-header,
+.lat-log-row {
+    display: grid;
+    grid-template-columns: 52px 62px 60px 120px 1fr;
+    gap: 0;
+}
+
+.lat-log-header {
+    background: #f6f7f7;
+    border-bottom: 1px solid var(--lat-border);
+    font-weight: 600;
+    color: #3c434a;
+}
+.lat-log-header span,
+.lat-log-row span {
+    padding: 5px 8px;
+    border-right: 1px solid #ececec;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.lat-log-header span:last-child,
+.lat-log-row span:last-child { border-right: none; }
+
+.lat-log-rows {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.lat-log-row:nth-child(even) { background: #fafafa; }
+.lat-log-row:first-child     { background: #f0f6fc; font-weight: 500; }
+
+.lat-log-time   { color: #666; }
+.lat-log-tokens { color: #0073aa; font-family: monospace; font-size: 11px; }
+.lat-log-preview { color: #787878; }
+
+/* ── Progress pct / count / eta ──────────────────────────────────── */
+.lat-progress-pct {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--lat-blue);
+    margin-left: 10px;
+    min-width: 38px;
+    display: inline-block;
+}
+.lat-progress-cnt { font-size: 12px; color: #787878; }
+.lat-progress-eta { font-size: 11px; color: #a0a5aa; }
+
+/* ── Stop button ─────────────────────────────────────────────────── */
+.lat-stop-btn {
+    background: #fff !important;
+    color: var(--lat-red) !important;
+    border-color: var(--lat-red) !important;
+    font-weight: 600 !important;
+    height: 30px !important;
+    line-height: 28px !important;
+    padding: 0 12px !important;
+    transition: background .15s, color .15s !important;
+}
+.lat-stop-btn:hover:not(:disabled) {
+    background: var(--lat-red) !important;
+    color: #fff !important;
+}
+.lat-stop-btn:disabled { opacity: .6 !important; cursor: wait !important; }
+
+/* ── Reload button ───────────────────────────────────────────────── */
+.lat-reload-btn { vertical-align: middle; margin-left: 8px !important; }
+    font-weight: 600 !important;
+    height: 30px !important;
+    line-height: 28px !important;
+    padding: 0 16px !important;
+    font-size: 13px !important;
+    transition: background .15s, opacity .15s !important;
+}
+
+.lat-ai-btn.lat-btn-busy {
+    opacity: .75 !important;
+    cursor: wait !important;
+}
+
+/* ── Model badge ─────────────────────────────────────────────────── */
+.lat-model-badge {
+    font-size: 11px;
+    color: #787878;
+    background: var(--lat-bg);
+    border: 1px solid var(--lat-border);
+    border-radius: 20px;
+    padding: 2px 10px;
+    white-space: nowrap;
+    margin-left: 4px;
+}
+
+/* ── Progress ────────────────────────────────────────────────────── */
+.lat-editor-progress {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.lat-editor-progress .lat-progress-bar-track {
+    flex: 1;
+    background: var(--lat-border);
+    border-radius: 20px;
+    height: 8px;
+    overflow: hidden;
+    min-width: 120px;
+}
+
+.lat-progress-inline-text {
+    font-size: 12px;
+    color: #787878;
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+/* ── Editor notices ──────────────────────────────────────────────── */
+#lat-editor-notices {
+    margin-top: 10px;
+}
+
+.lat-editor-notice {
+    padding: 9px 14px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* ── Filled field flash ──────────────────────────────────────────── */
+@keyframes lat-flash {
+    0%   { background-color: #d4f5de; }
+    100% { background-color: transparent; }
+}
+
+textarea.lat-filled,
+input.lat-filled {
+    animation: lat-flash 2.2s ease-out forwards;
+}
